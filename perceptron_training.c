@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#define VLR_BIAS 1
-#define TX_APR 0.01
-#define nLine 48*4
+#define VLR_BIAS 0.1
+#define TX_APR 0.1
+#define nLine 36*48
 #define nCol 49
-#define AGES 2000
+#define AGES 60000
 
 void deleteDb(unsigned char **db)
 {
@@ -42,7 +42,7 @@ unsigned char **readImage(char *fileName)
 {
 	unsigned char **image = (unsigned char**)malloc(nLine*sizeof(unsigned char *));
 	int i,j,k;
-	char aux;
+	//char aux;
 	
 	FILE *fp = fopen(fileName,"r");
 
@@ -80,7 +80,7 @@ float *InitSinapticWeight(int nEntries)
     srand(time(NULL));
     
     for(i = 0; i < nEntries+1; i++)
-        sinWeight[i] = (rand() % 2) + 0.5;        
+        sinWeight[i] = 0.1;        
     
     return sinWeight;
 }
@@ -92,7 +92,7 @@ float sum(unsigned char* imageLine, float* sinapses)
 	
 	result += sinapses[0] * VLR_BIAS;
 	
-	for(i = 1; i < nCol-1; i++)
+	for(i = 1; i < nCol; i++)
 		result += sinapses[i]*imageLine[i-1]; 
 	
 	return result;
@@ -100,7 +100,7 @@ float sum(unsigned char* imageLine, float* sinapses)
 
 int step(float s)
 {
-	if(s > 80) return 1;
+	if(s > 120) return 1;
 	return 0;
 }
 
@@ -127,7 +127,7 @@ void traininig(unsigned char **image, float *sinapses)
 				sinapses[0] = deltaRule(error, VLR_BIAS, sinapses[0]);
 				for(k = 1; k < nCol; k++)
 				{	
-					sinapses[k] = deltaRule(error, image[j][k], sinapses[k]);
+					sinapses[k] = deltaRule(error, image[j][k-1], sinapses[k]);
 					//if(sinapses[k] > 1000000)
 					//	sinapses[k] /= 100;
 				}	
@@ -149,7 +149,7 @@ int main (int argc, char *argv[])
 	
 	//printf("%d\n", nEntries);
 	
-	unsigned char **image = readImage("dBtrGr8St1.dat");
+	unsigned char **image = readImage("dBtrSt1.dat");
 	//printDb(image);
 	
 	

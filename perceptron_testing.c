@@ -7,7 +7,7 @@ void deletImage(unsigned char **image)
 {
 	int i;
 
-	for(i = 0; i < nLine; i++)
+	for(i = 0; i < 9*nLine; i++)
 		free(image[i]);
 	
 	free(image);
@@ -15,14 +15,14 @@ void deletImage(unsigned char **image)
 
 unsigned char **readImage(char *fileName)
 {
-	unsigned char **image = (unsigned char**)malloc(nLine*sizeof(unsigned char *));
+	unsigned char **image = (unsigned char**)malloc(9*nLine*sizeof(unsigned char *));
 	int i,j,k;
 	
 	FILE *fp = fopen(fileName,"r");
 
 	if(fp != NULL)
 	{
-		for(i = 0; i < nLine; i++)
+		for(i = 0; i < 9*nLine; i++)
 		{
 			image[i] = (unsigned char *)malloc(nCol*sizeof(unsigned char));
 			
@@ -72,7 +72,7 @@ void printSinapticWeightVector(float *sinWeightVector)
     
 }
 
-void printResult(int *result)
+void printResult(int *result, int imagem)
 {
 	
 	int i, rate = 0;;
@@ -83,39 +83,53 @@ void printResult(int *result)
 		printf("%d ", result[i]);
 		
 	}		
-	printf("\nTaxa de acerto: %f\n",(rate*1.0/nLine)*100.0);
+	printf("\nTaxa de acerto para imagem %d: %f\n",imagem,(rate*1.0/nLine)*100.0);
+}
+
+int step(float s)
+{
+	if(s > 100000000) return 1;
+	return -1;
 }
 
 void testing(unsigned char **image, float *sinVector)
 {
-    int i,j;
+    int i,j,k,l = 0;
 	float sum = 0.0;
+	int response;
 	int *result = (int *)malloc(nLine*sizeof(int));
-    
-    for(i = 0; i < nLine; i++)
-	{
-		for(j = 0; j < nCol; j++)
-	    	sum += sinVector[j]*image[i][j];
-	    
-	    if(sum - sinVector[0] >= 0 )
-	    	result[i] = 1;
-	    else
-	    	result[i] = -1;
-	    
-	    sum = 0.0;
-	}
+  
+  for(k = 0; k < 9; k++)
+  {
+	    for(i = k*48; i < nLine*(k+1); i++)
+		{
+			for(j = 0; j < nCol; j++)
+		    	sum += sinVector[j]*image[i][j];
+		    
+		    response = step(sum);
+		    
+		    if(response >= 0 )
+		    	result[l++] = 1;
+		    else
+		    	result[l++] = -1;
+		    
+		    sum = 0.0;
+		}
 	
-	printResult(result);
-	free(result);
-	    
+	l = 0;	
+	printResult(result, k);
+ 
+  }
+  
+  free(result);
 }
 
-int main(int *argc, char *argv[])
+int main(int argc, char *argv[])
 {
     
-    int n;
-    unsigned char **image = readImage("dBtestGr5St1.dat");
-    float *sinVector = readSinapticWeigth("treinamento.txt");
+    //int n;
+    unsigned char **image = readImage("dBtestSt1.dat");
+    float *sinVector = readSinapticWeigth("trainingResult.dat");
     printSinapticWeightVector(sinVector);
     testing(image,sinVector);
     
