@@ -1,27 +1,3 @@
-void printDb(unsigned char **db)
-{
-	int i,j;
-
-	for(i = 0; i < nLine; i++)
-	{
-		for(j = 0; j < nCol; j++)
-			printf("%hhu\t", db[i][j]);
-
-		printf("\n");
-	}
-
-}
-
-void printSinapticWeightVector(float *sinWeightVector, int n)
-{
-    int i;
-    
-    for(i = 0; i < n; i++)
-        printf("%f ", sinWeightVector[i]);
-    printf("\n");
-    
-}
-
 #include <stdio.h>
 #include <stdlib.h>
 #define TX_APR 0.1
@@ -32,7 +8,7 @@ void printSinapticWeightVector(float *sinWeightVector, int n)
 
 #define AGES 5
 
-double sinWeight[] = {0.754903, 0.505975, 0.245960, 0.346982, 0.722907, 0.477508, 0.489784,
+float sinWeight[] = {0.754903, 0.505975, 0.245960, 0.346982, 0.722907, 0.477508, 0.489784,
 						  0.956696, 0.233916, 0.146732, 0.036004, 0.732390, 0.658822, 0.875878,
 						  0.106907, 0.861460, 0.817496, 0.165303, 0.769992, 0.197185, 0.819410,
 						  0.058207, 0.295896, 0.944933, 0.118802, 0.780714, 0.229500, 0.015126,
@@ -49,7 +25,6 @@ void deleteDb(unsigned char **db)
 
 	free(db);
 }
-
 
 unsigned char **readImage(char *fileName)
 {
@@ -118,7 +93,7 @@ void testing(unsigned char **image)
 
   for(k = 0; k < 36; k++)
   {
-	    for(i = k*48; i < nLine*(k+1); i++)
+	    for(i = k*48; i < 48*(k+1); i++)
 		{
 			for(j = 1; j < nCol; j++)
 		    	sum += sinWeight[j]*image[i][j-1];
@@ -132,7 +107,7 @@ void testing(unsigned char **image)
 		    sum = 0.0;
 		}
 
-	printf("Taxa de acerto para imagem %d: %f\n", k+1, ((tx*1.0)/nLine)*100);
+	printf("Taxa de acerto para imagem %d: %f\n", k+1, ((tx*1.0)/(48*1.0))*100);
 	tx = 0;
   }
 
@@ -162,9 +137,10 @@ void traininig(unsigned char **image)
 int main (int argc, char *argv[])
 {
 
-	unsigned char **image = readImage("dBtrSt1.dat");
+	unsigned char **image = readImage("../imagesDatabase/dBtrSt1.dat");
+	
 	traininig(image);
-
+	
 	testing(image);
 
 	deleteDb(image);

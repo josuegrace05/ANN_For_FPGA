@@ -3,7 +3,7 @@
 
 #define nLine 48
 #define nCol 49
-#define nImages 9
+#define nImages 36
 #define group 8
 
 void deletImage(unsigned char **image)
@@ -78,7 +78,7 @@ void testing(unsigned char **image, double *sinVector)
 	int response;
 	int tx = 0; 
   
-  for(k = 0; k < 9; k++)
+  for(k = 0; k < nImages; k++)
   {
 	    for(i = k*48; i < nLine*(k+1); i++)
 		{
@@ -103,7 +103,7 @@ void testing(unsigned char **image, double *sinVector)
 int main(int argc, char *argv[])
 {
     
-    unsigned char **image = readImage("../imagesDatabase/dBtestSt1.dat");
+    unsigned char **image = readImage("../imagesDatabase/dBtrSt1.dat");
     double *sinVector = readSinapticWeigth("../imagesDatabase/trainingResult.dat");
 
     testing(image,sinVector);

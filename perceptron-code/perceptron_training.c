@@ -92,6 +92,15 @@ double deltaRule(int error, int entry, double sinapse)
 	return (sinapse + (TX_APR * error * entry));
 }
 
+void printSinapticWeightVector(double *sinWeightVector, int n)
+{
+    int i;
+    
+    for(i = 0; i < n; i++)
+        printf("%f ", sinWeightVector[i]);
+    printf("\n");
+    
+}
 void traininig(unsigned char **image, double *sinapses, FILE *outputFile)
 {
 	int i, j, k, response, error;
@@ -127,6 +136,7 @@ int main (int argc, char *argv[])
 	unsigned char **image = readImage("../imagesDatabase/dBtrSt1.dat");
 
 	double *sinWeightVector = InitSinapticWeight(48);
+	//printSinapticWeightVector(sinWeightVector,49);
 	
 	FILE *outputFile = fopen("../imagesDatabase/trainingResult.dat","w");
 	
