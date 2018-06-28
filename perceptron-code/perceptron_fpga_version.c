@@ -6,7 +6,7 @@
 #define nCol 49
 #define group 8
 
-#define AGES 5
+#define AGES 1
 
 float sinWeight[] = {0.754903, 0.505975, 0.245960, 0.346982, 0.722907, 0.477508, 0.489784,
 						  0.956696, 0.233916, 0.146732, 0.036004, 0.732390, 0.658822, 0.875878,
@@ -26,21 +26,45 @@ void deleteDb(unsigned char **db)
 	free(db);
 }
 
-unsigned char **readImage(char *fileName)
+void printImage(unsigned char **image)
 {
+	int i, j;
+
+	for(i = 0; i < 48; i++)
+	{
+		for(j = 0; j < 48; j++)
+			printf("%d ", image[i][j]);
+		printf("\n");
+	}
+}
+unsigned char **readImage(char *filename)
+{
+	printf("Will start.....\n");
+	printf("%s\n",filename);
+
 	unsigned char **image = (unsigned char**)malloc(nLine*sizeof(unsigned char *));
 	int i,j,k;
 
-	FILE *fp = fopen(fileName,"r");
+	printf("Did malloc\n");
+
+	FILE *fp = fopen(filename,"r");
+
+	printf("Will open the file.....\n");
 
 	if(fp != NULL)
 	{
+		printf("Preparing.....\n");
+
 		for(i = 0; i < nLine; i++)
 		{
+			printf("Reading line:%d\n",i);
+
 			image[i] = (unsigned char *)malloc(nCol*sizeof(unsigned char));
 
 			for(j = 0; j < nCol -1; j++)
 			{
+				printf("Reading column :%d\n",j);
+
 				fscanf(fp,"%d,",&k);
 				image[i][j] = (unsigned char)k;
 			}
@@ -60,9 +84,9 @@ unsigned char **readImage(char *fileName)
 	return image;
 }
 
-double sum(unsigned char* imageLine)
+float sum(unsigned char* imageLine)
 {
-	double result = 0;
+	float result = 0;
 	int i;
 
 	result += sinWeight[0];
@@ -73,13 +97,13 @@ double sum(unsigned char* imageLine)
 	return result;
 }
 
-int step(double s)
+int step(float s)
 {
 	if(s > 127) return 1;
 	return 0;
 }
 
-double deltaRule(int error, int entry, double S)
+float deltaRule(int error, int entry, float S)
 {
 	return (S + (TX_APR * error * entry));
 }
@@ -87,9 +111,9 @@ double deltaRule(int error, int entry, double S)
 void testing(unsigned char **image)
 {
     int i,j,k;
-	double sum = 0.0;
 	int response;
 	int tx = 0;
+	float sum = 0.0;
 
   for(k = 0; k < 36; k++)
   {
@@ -118,7 +142,10 @@ void traininig(unsigned char **image)
 
 	for(i = 0; i < AGES; i++){
 
+		printf("Line: %d\n",i);
 		for(j = 0; j < nLine; j++){
+
+			printf("Col: %d\n",j);
 
 			response = step(sum(image[j]));
 			error = image[j][nCol-1] - response;
@@ -133,14 +160,26 @@ void traininig(unsigned char **image)
 	}
 
 }
+void printSinapticWeightVector(int n)
+{
+    int i;
 
+    for(i = 0; i < n; i++)
+        printf("%f ", sinWeight[i]);
+    printf("\n");
+
+}
 int main (int argc, char *argv[])
 {
 
-	unsigned char **image = readImage("../imagesDatabase/dBtrSt1.dat");
-	
+	char filename[] = "/mnt/host/dBtrSt1.dat";
+
+	printf("Reading image...\n");
+	unsigned char **image = readImage(filename);
+	printf("OK\n");
+
 	traininig(image);
-	
+
 	testing(image);
 
 	deleteDb(image);
