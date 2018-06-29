@@ -1,0 +1,4 @@
+Training: 	4 imagens do grupo 8 (dBtrGr8St1.dat)
+Testing:	100.0% (dBtestGr8St1.dat)
+			  0.0% (dBtestGr1St1.dat)
+			 20.6% (dbtestGr8St1.dat)

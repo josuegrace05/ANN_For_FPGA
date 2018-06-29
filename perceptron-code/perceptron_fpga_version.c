@@ -694,7 +694,7 @@ void testing()
 	int tx = 0;
 	float sum = 0.0;
 
-  for(k = 0; k < 1; k++)
+  for(k = 0; k < 9; k++)
   {
 	    for(i = k*nLine; i < nLine*(k+1); i++)
 		{
