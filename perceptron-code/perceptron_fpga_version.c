@@ -133,16 +133,34 @@ void traininig(unsigned char **image)
 	}
 
 }
-
+void generate_image_estatica(unsigned char **image){
+	FILE* fp = fopen("static.txt", "w+");
+	int i, j;
+	int nLine_s = 36*48;
+	fprintf(fp, "{");
+	for(i = 0; i < nLine_s; i++){
+		fprintf(fp, "{");
+		for(j = 0; j < 49; j++){
+			fprintf(fp, "%d", image[i][j]);
+			if(j < 48)
+				fprintf(fp, ",");
+		}
+		fprintf(fp, "}\n");
+	}
+	fprintf(fp, "}");
+	fclose(fp);
+}
 int main (int argc, char *argv[])
 {
 
 	unsigned char **image = readImage("../imagesDatabase/dBtrSt1.dat");
-	
+
+	generate_image_estatica(image);
+/*
 	traininig(image);
 	
 	testing(image);
-
+*/
 	deleteDb(image);
 
 	return 0;
