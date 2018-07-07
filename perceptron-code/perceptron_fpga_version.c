@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define TX_APR 1
+#define TX_APR 0.1
 
 #define nLine 48
 #define lineImages 4*48
@@ -10,25 +10,18 @@
 #define nCol 49
 #define group 8
 
-#define AGES 50000
+#define AGES 50
 
-/*float sinWeight[] = {0.754903, 0.505975, 0.245960, 0.346982, 0.722907, 0.477508, 0.489784,
-						  0.956696, 0.233916, 0.146732, 0.036004, 0.732390, 0.658822, 0.875878,
-						  0.106907, 0.861460, 0.817496, 0.165303, 0.769992, 0.197185, 0.819410,
-						  0.058207, 0.295896, 0.944933, 0.118802, 0.780714, 0.229500, 0.015126,
-						  0.068240, 0.495698, 0.893159, 0.823143, 0.001673, 0.139120, 0.170126,
-						  0.724580, 0.616627, 0.659909, 0.681276, 0.850543, 0.806641, 0.717280,
-						  0.582933, 0.465464, 0.593159, 0.689840, 0.326924, 0.410655, 0.855143 };
-*/
-
-int sinWeight[49] = {1, 1, 2, 1, 2, 1, 2,
-						  1, 2, 1, 1, 2, 1, 2,
-						  1, 1, 2, 1, 1, 2, 1,
-						  2, 1, 1, 1, 2, 1, 1,
-						  1, 2, 1, 1, 1, 1, 2,
-						  1, 1, 2, 2, 1, 2, 1,
-						  1, 1, 2, 1, 2, 2, 1 };
-						  
+float sinWeight[49] = {0.034840, 0.056563, 0.094812, 0.071362, 0.013009, 
+						0.073267, 0.038834, 0.002779, 0.004898, 0.067385,
+					 	0.083066, 0.052474, 0.086467, 0.001551, 0.028894, 
+					 	0.041656,0.024250, 0.022332, 0.003805, 0.016398, 
+					 	0.065148,0.038661, 0.060581, 0.094214, 0.075570, 
+					 	0.032208,0.072781, 0.031101, 0.078260, 0.007589, 
+					 	0.050959, 0.013099, 0.064152, 0.045770, 0.084461, 
+					 	0.077162, 0.019037, 0.023294, 0.079941, 0.023936, 
+					 	0.090679, 0.063007, 0.076409, 0.077147, 0.064557,
+					 	 0.005303, 0.018803, 0.088807, 0.027635};				  
 unsigned char ts_image[432][49] =
 
 {{65,65,65,65,64,64,64,64,64,64,64,63,63,63,64,63,63,63,63,63,63,63,63,63,63,63,64,64,64,65,65,64,64,65,66,66,66,67,68,68,68,69,69,70,70,70,71,71,0},
@@ -660,18 +653,6 @@ unsigned char t_image[192][49] = {
 		{103,100,102,99,89,80,85,95,95,93,82,79,80,81,86,89,81,84,86,85,82,80,80,73,78,81,77,70,63,66,65,63,69,65,60,62,61,67,62,56,55,61,61,69,63,61,68,70,1}
 };
 
-void printImage()
-{
-	int i, j;
-
-	for(i = 0; i < lineImages; i++)
-	{
-		for(j = 0; j < 48; j++)
-			printf("%d ", t_image[i][j]);
-		printf("\n");
-	}
-}
-
 float sum(unsigned char* imageLine)
 {
 	float result = 0;
@@ -681,13 +662,28 @@ float sum(unsigned char* imageLine)
 
 	for(i = 1; i < nCol; i++)
 		result += sinWeight[i]*imageLine[i-1];
-
+	
 	return result;
 }
 
-int step(float s)
+/* Função de ativação utilizada na hora de treinar
+O valor definido foi obtido observando a média dos valores obtidos pela combinação
+linear entre os pesos e as entradas da imagem */
+
+int tr_step(float s)
 {
-	if(s > 30) return 1;
+	if(s > 50000) return 1;
+	
+	return 0;
+}
+
+/* Achamos melhor definir um intervalo de valor em vez de usar apenas um valor pois o perceptron simples
+não consegue diferenciar 9 padrões diferentes*/
+
+int ts_step(float s) //Função da ativação utilizada na hora de testar
+{
+	if(s > 120000.0 && s < 256000.0) return 1;
+	
 	return 0;
 }
 
@@ -702,68 +698,63 @@ void testing()
 	int response;
 	int tx = 0;
 	float sum = 0.0;
-
-  for(k = 0; k < 9; k++)
-  {
-	    for(i = k*nLine; i < nLine*(k+1); i++)
+	
+	for(k = 0; k < 9; k++) // Para cada imagem de teste
+  	{
+	    for(i = k*nLine; i < nLine*(k+1); i++) // Para cada linha daquela imagem de teste
 		{
-			for(j = 1; j < nCol; j++)
+			for(j = 1; j < nCol; j++) // Multiplique cada entrada pelo seu peso
 		    	sum += sinWeight[j]*ts_image[i][j-1];
 
-		    sum += sinWeight[0];
-		    response = step(sum);
+		    sum += sinWeight[0]*VLR_BIAS; //Multiplique o peso do valor baise
+		    response = ts_step(sum); 
 
-		    if(response == ts_image[i][nCol-1] )
+		    if(response == ts_image[i][nCol-1]) //Acertou a classe ? 
 		    	tx++;
-
+  
 		    sum = 0.0;
 		}
 
-	printf("Taxa de acerto para imagem %d: %f\n", k+1, ((tx*1.0)/(48*1.0))*100);
+	printf("Taxa de acerto para imagem do grupo  %d: %f\n", k+1, ((tx*1.0)/(48*1.0))*100);
 	tx = 0;
   }
 
 }
 void traininig()
 {
-	int i, j, k, response, error;
+	int i,j,k,n,response,error;
+	int c;
 
-	for(i = 0; i < AGES; i++){
+	for(n = 0; n < 4; n++) //Para cada imagem
+	{
+		for(i = 0; i < AGES; i++) //Treine por um determinado número de épocas
+		{
 
-		for(j = 0; j < nLine; j++){
-
-			response = step(sum(t_image[j]));
-			error = t_image[j][nCol-1] - response;
-
-			if(error)
+			for(j = n*nLine; j < nLine*(n+1); j++) //Para cada linha daquela imagem
 			{
-				sinWeight[0] = deltaRule(error,VLR_BIAS,sinWeight[0]);
-				
-				for(k = 1; k < nCol; k++)
-					sinWeight[k] = deltaRule(error,t_image[j][k-1], sinWeight[k]);
+
+				response = tr_step(sum(t_image[j]));
+				error = t_image[j][nCol-1] - response;
+
+				if(error != 0) //Se não acertou o resultado, corrige
+				{
+					sinWeight[0] = deltaRule(error,VLR_BIAS,sinWeight[0]);//Corrige o valor bias separadamente
+					
+					for(k = 1; k < nCol; k++) //Corrige o resto dos pesos
+						sinWeight[k] = deltaRule(error,t_image[j][k-1], sinWeight[k]);
+						
+				}
+
 			}
+
 		}
-
 	}
-
-}
-
-void printSinapticWeightVector(int n)
-{
-    int i;
-
-    for(i = 0; i < n; i++)
-        printf("%d ", sinWeight[i]);
-    printf("\n");
-
 }
 
 int main (int argc, char *argv[])
 {
-	printSinapticWeightVector(49);
+	
 	traininig();
-	printSinapticWeightVector(49);
-		
 	testing();
 
 	return 0;
